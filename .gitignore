@@ -1,0 +1,35 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Go
+apps/api/bin/
+apps/api/vendor/
+apps/api/coverage.out
+
+# Node
+apps/web/dist/
+apps/web/coverage/
+
+#Dependecies
+node_modules/
+apps/web/node_modules/
+.pnpm-store/
+
+# Build
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.pem
+*.key

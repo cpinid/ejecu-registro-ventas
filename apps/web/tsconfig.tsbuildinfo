@@ -1,0 +1,1 @@
+{"root":["./src/main.tsx","./src/vite-env.d.ts","./src/componentes/registro-venta/registro-venta.api.ts","./src/componentes/registro-venta/registro-venta.tsx","./src/componentes/registro-venta/use-registro-venta.ts","./src/mocks/browser.ts","./src/mocks/handlers.ts"],"version":"6.0.3"}
