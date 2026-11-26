@@ -1,61 +1,54 @@
-name: registro-venta
-
+name: registro-ventas
 services:
   postgres:
-    image: postgres:17.11
+    image: ${POSTGRES_IMAGE:?fijar digest}
     environment:
-      POSTGRES_DB: registro_venta
-      POSTGRES_USER: registro_venta
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      TZ: America/Santiago
-    ports:
-      - "127.0.0.1:5192:5432"
+      POSTGRES_DB: ventas
+      POSTGRES_USER: ventas
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?configurar}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - datos:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U registro_venta -d registro_venta"]
+      test: [CMD, pg_isready, -U, ventas, -d, ventas]
       interval: 5s
-      timeout: 5s
-      retries: 10
-
+      timeout: 3s
+      retries: 12
   migrate:
     build:
       context: .
       dockerfile: apps/api/Dockerfile.migrate
+      args:
+        ALPINE_IMAGE: ${ALPINE_IMAGE:?fijar digest}
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: ${DATABASE_URL:?configurar}
     depends_on:
       postgres:
         condition: service_healthy
-
   backend:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-    environment:
-      API_PORT: "8080"
-      API_ENV: ${API_ENV}
-      DATABASE_URL: ${DATABASE_URL}
-      AUTH_JWKS_URL: ${AUTH_JWKS_URL}
-      FRONTEND_URL: ${FRONTEND_URL}
-      TZ: America/Santiago
+    env_file: .env
     ports:
-      - "127.0.0.1:5191:8080"
+      - '127.0.0.1:5141:8080'
     depends_on:
       migrate:
         condition: service_completed_successfully
-
   frontend:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
     environment:
       BACKEND_URL: http://backend:8080
-      TZ: America/Santiago
     ports:
-      - "127.0.0.1:5190:8080"
+      - '127.0.0.1:5140:8080'
     depends_on:
-      - backend
-
+      backend:
+        condition: service_started
+  mailpit:
+    image: ${MAILPIT_IMAGE:?fijar digest}
+    profiles: [dev]
+    ports:
+      - '127.0.0.1:8025:8025'
 volumes:
-  postgres_data:
+  datos:

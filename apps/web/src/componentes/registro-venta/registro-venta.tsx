@@ -1,38 +1,9 @@
-export default function RegistroVenta() {
-  return (
-    <main className="min-h-screen bg-slate-100 p-6">
-      <div className="mx-auto max-w-7xl">
-        <header className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
-            Grupo 9 · Sistema de ventas
-          </p>
-
-          <h1 className="mt-2 text-3xl font-bold text-slate-900">
-            Registro de venta
-          </h1>
-
-          <p className="mt-2 text-slate-500">
-            Gestiona los productos y registra nuevas ventas.
-          </p>
-        </header>
-
-        <section className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-800">
-            Bienvenido
-          </h2>
-
-          <p className="mt-2 text-slate-600">
-            La aplicación de registro de ventas está iniciada.
-            Próximamente podrás agregar productos, gestionar cantidades,
-            seleccionar el medio de pago y confirmar una venta.
-          </p>
-
-          <div className="mt-6 rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
-            Entorno de desarrollo preparado. Los servicios de productos
-            y stock se integrarán mediante sus respectivas APIs.
-          </div>
-        </section>
-      </div>
-    </main>
-  );
+import { useForm, useFieldArray } from 'react-hook-form'
+import { useRegistroVenta } from './use-registro-venta'
+import type { Entrada } from './registro-venta.api'
+export function RegistroVenta({ urlBase, puedeOperar }: { urlBase: string; puedeOperar: boolean }) {
+  const { register, control, handleSubmit } = useForm<Entrada>({ defaultValues: { medio_pago: 'efectivo', productos: [{ producto_id: '', cantidad: 1 }] } })
+  const { fields, append, remove } = useFieldArray({ control, name: 'productos' })
+  const { enviar, pendiente, mutacion } = useRegistroVenta(urlBase)
+  return <main className="mx-auto max-w-3xl p-6"><h1 className="text-2xl font-bold">Registrar venta</h1><form className="grid gap-4 mt-4" onSubmit={handleSubmit(enviar)}><fieldset disabled={!puedeOperar || !!pendiente || mutacion.isPending} className="grid gap-3">{fields.map((campo, i) => <div key={campo.id} className="flex flex-wrap gap-2"><label>UUID producto <input required {...register(`productos.${i}.producto_id`)} /></label><label>Cantidad <input type="number" min="1" max="1000000" required {...register(`productos.${i}.cantidad`, { valueAsNumber: true })} /></label><button type="button" disabled={fields.length===1} onClick={() => remove(i)}>Quitar</button></div>)}<button type="button" disabled={fields.length>=100} onClick={() => append({ producto_id: '', cantidad: 1 })}>Agregar producto</button><label>Medio de pago <select {...register('medio_pago')}><option value="efectivo">Efectivo</option><option value="debito">Débito</option><option value="credito">Crédito</option><option value="transferencia">Transferencia</option></select></label></fieldset><button disabled={!puedeOperar || mutacion.isPending} type="submit">{pendiente ? 'Reintentar misma venta' : 'Registrar venta'}</button></form>{mutacion.isError && <p role="alert">{mutacion.error.message}</p>}{mutacion.data && <section className="mt-6"><h2>Venta confirmada</h2><p>{mutacion.data.id}</p><ul>{(mutacion.data.detalles ?? []).map(d => <li key={d.producto_id}>{d.nombre} × {d.cantidad}: ${d.subtotal}</li>)}</ul><strong>Total: ${mutacion.data.total}</strong></section>}</main>
 }

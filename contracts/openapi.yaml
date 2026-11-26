@@ -1,0 +1,358 @@
+components:
+  schemas:
+    Detalle:
+      additionalProperties: false
+      properties:
+        cantidad:
+          format: int32
+          type: integer
+        costo_unitario:
+          format: int64
+          type: integer
+        nombre:
+          type: string
+        precio_unitario:
+          format: int64
+          type: integer
+        producto_id:
+          format: uuid
+          type: string
+        subtotal:
+          format: int64
+          type: integer
+      required:
+        - producto_id
+        - nombre
+        - cantidad
+        - precio_unitario
+        - costo_unitario
+        - subtotal
+      type: object
+    ErrorDetail:
+      additionalProperties: false
+      properties:
+        location:
+          description: Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id'
+          type: string
+        message:
+          description: Error message text
+          type: string
+        value:
+          description: The value at the given location
+      type: object
+    ErrorModel:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://example.com/api/schemas/ErrorModel.json
+          format: uri
+          readOnly: true
+          type: string
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem.
+          examples:
+            - Property foo is required but is missing.
+          type: string
+        errors:
+          description: Optional list of individual error details
+          items:
+            $ref: "#/components/schemas/ErrorDetail"
+          type:
+            - array
+            - "null"
+        instance:
+          description: A URI reference that identifies the specific occurrence of the problem.
+          examples:
+            - https://example.com/error-log/abc123
+          format: uri
+          type: string
+        status:
+          description: HTTP status code
+          examples:
+            - 400
+          format: int64
+          type: integer
+        title:
+          description: A short, human-readable summary of the problem type. This value should not change between occurrences of the error.
+          examples:
+            - Bad Request
+          type: string
+        type:
+          default: about:blank
+          description: A URI reference to human-readable documentation for the error.
+          examples:
+            - https://example.com/errors/example
+          format: uri
+          type: string
+      type: object
+    Item:
+      additionalProperties: false
+      properties:
+        cantidad:
+          format: int32
+          maximum: 1000000
+          minimum: 1
+          type: integer
+        producto_id:
+          format: uuid
+          type: string
+      required:
+        - producto_id
+        - cantidad
+      type: object
+    Solicitud:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://example.com/api/schemas/Solicitud.json
+          format: uri
+          readOnly: true
+          type: string
+        medio_pago:
+          enum:
+            - efectivo
+            - debito
+            - credito
+            - transferencia
+          type: string
+        productos:
+          items:
+            $ref: "#/components/schemas/Item"
+          maxItems: 100
+          minItems: 1
+          type:
+            - array
+            - "null"
+      required:
+        - medio_pago
+        - productos
+      type: object
+    Venta:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://example.com/api/schemas/Venta.json
+          format: uri
+          readOnly: true
+          type: string
+        detalles:
+          items:
+            $ref: "#/components/schemas/Detalle"
+          type:
+            - array
+            - "null"
+        estado:
+          type: string
+        fecha:
+          format: date-time
+          type: string
+        id:
+          format: uuid
+          type: string
+        medio_pago:
+          type: string
+        total:
+          format: int64
+          type: integer
+        vendedor_id:
+          format: uuid
+          type: string
+      required:
+        - id
+        - vendedor_id
+        - fecha
+        - medio_pago
+        - estado
+        - total
+        - detalles
+      type: object
+  securitySchemes:
+    sesion:
+      in: cookie
+      name: sesion
+      type: apiKey
+info:
+  title: Registro de ventas
+  version: 1.0.0
+openapi: 3.1.0
+paths:
+  /api/ventas:
+    get:
+      operationId: listar-ventas
+      parameters:
+        - explode: false
+          in: query
+          name: limite
+          schema:
+            default: 50
+            format: int32
+            maximum: 100
+            minimum: 1
+            type: integer
+        - explode: false
+          in: query
+          name: desplazamiento
+          schema:
+            default: 0
+            format: int32
+            minimum: 0
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Venta"
+                type:
+                  - array
+                  - "null"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+      security:
+        - sesion: []
+    post:
+      operationId: crear-venta
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            maxLength: 128
+            minLength: 1
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Solicitud"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Venta"
+          description: Created
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "409":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Conflict
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+        "503":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Service Unavailable
+      security:
+        - sesion: []
+  /api/ventas/{id}:
+    get:
+      operationId: consultar-venta
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Venta"
+          description: OK
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+      security:
+        - sesion: []
