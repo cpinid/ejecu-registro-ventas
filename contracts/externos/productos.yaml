@@ -1,0 +1,30 @@
+openapi: 3.0.3
+info:
+  title: Productos del simulador de desarrollo
+  version: 0.1.0
+  description: Interfaz provisional implementada por dev/mocks.
+paths:
+  /api/productos/{id}:
+    get:
+      operationId: obtenerProducto
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Producto disponible
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [nombre, precio_venta, costo, vendible]
+                properties:
+                  nombre: { type: string }
+                  precio_venta: { type: integer, format: int64 }
+                  costo: { type: integer, format: int64 }
+                  vendible: { type: boolean }
+        "401": { description: Credencial inválida }
+        "404": { description: Producto desconocido }
+security: [{ bearer: [] }]
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer }

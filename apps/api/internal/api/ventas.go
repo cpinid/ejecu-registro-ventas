@@ -3,8 +3,10 @@ package api
 import (
 	"context"
 	"errors"
-	"github.com/danielgtaylor/huma/v2"
 	"net/http"
+
+	"github.com/danielgtaylor/huma/v2"
+
 	"registro-ventas/internal/service"
 )
 
@@ -40,8 +42,12 @@ func problema(e error) error {
 		return huma.Error500InternalServerError("error interno")
 	}
 }
-func Registrar(a huma.API, s service.Servicio) {
-	huma.Register(a, huma.Operation{OperationID: "crear-venta", Method: http.MethodPost, Path: "/api/ventas", DefaultStatus: 201, Errors: []int{401, 403, 404, 409, 422, 503}, Security: []map[string][]string{{"sesion": {}}}}, func(ctx context.Context, in *Entrada) (*Salida, error) {
+func Registrar(a huma.API, s service.Servicio, auth Autenticacion) {
+	crear := auth.proteger(a, "ventas:operar", huma.Operation{
+		OperationID: "crear-venta", Method: http.MethodPost, Path: "/api/ventas",
+		DefaultStatus: http.StatusCreated, Errors: []int{401, 403, 404, 409, 422, 503},
+	})
+	huma.Register(a, crear, func(ctx context.Context, in *Entrada) (*Salida, error) {
 		u, _ := ctx.Value(claveUsuario{}).(string)
 		v, e := s.Crear(ctx, u, in.Clave, in.Body)
 		if e != nil {
@@ -49,14 +55,22 @@ func Registrar(a huma.API, s service.Servicio) {
 		}
 		return &Salida{v}, nil
 	})
-	huma.Register(a, huma.Operation{OperationID: "consultar-venta", Method: http.MethodGet, Path: "/api/ventas/{id}", Errors: []int{401, 403, 404}, Security: []map[string][]string{{"sesion": {}}}}, func(ctx context.Context, in *Consulta) (*Salida, error) {
+	consultar := auth.proteger(a, "ventas:consultar", huma.Operation{
+		OperationID: "consultar-venta", Method: http.MethodGet, Path: "/api/ventas/{id}",
+		Errors: []int{401, 403, 404},
+	})
+	huma.Register(a, consultar, func(ctx context.Context, in *Consulta) (*Salida, error) {
 		v, e := s.PorID(ctx, in.ID)
 		if e != nil {
 			return nil, problema(e)
 		}
 		return &Salida{v}, nil
 	})
-	huma.Register(a, huma.Operation{OperationID: "listar-ventas", Method: http.MethodGet, Path: "/api/ventas", Errors: []int{401, 403}, Security: []map[string][]string{{"sesion": {}}}}, func(ctx context.Context, in *Paginacion) (*Lista, error) {
+	listar := auth.proteger(a, "ventas:consultar", huma.Operation{
+		OperationID: "listar-ventas", Method: http.MethodGet, Path: "/api/ventas",
+		Errors: []int{401, 403},
+	})
+	huma.Register(a, listar, func(ctx context.Context, in *Paginacion) (*Lista, error) {
 		v, e := s.Listar(ctx, in.Limite, in.Desplazamiento)
 		if e != nil {
 			return nil, problema(e)

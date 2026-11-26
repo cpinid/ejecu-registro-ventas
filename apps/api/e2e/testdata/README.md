@@ -1,1 +1,3 @@
-Pendiente de implementar E2E que arranquen binario real y PostgreSQL real con Testcontainers v0.43.0, reportes golden deterministas, JWT de prueba y proveedores con contrato oficial. No se incluyen golden de resultados no ejecutados.
+La prueba de integración HTTP está en [ventas_e2e_test.go](../../cmd/api/ventas_e2e_test.go).
+Usa PostgreSQL temporal con Testcontainers, las migraciones de producción y
+proveedores simulados. Desde la raíz, `pnpm test:e2e:api` genera `coverage.out`.

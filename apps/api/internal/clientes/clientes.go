@@ -1,14 +1,16 @@
-// Adaptadores PROVISIONALES: sustituir por clientes oapi-codegen de los contratos oficiales.
 package clientes
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"io"
 	"net/http"
-	"registro-ventas/internal/service"
+	"strings"
 	"time"
+
+	"registro-ventas/internal/clientes/productos"
+	"registro-ventas/internal/clientes/stock"
+	"registro-ventas/internal/service"
 )
 
 type claveContexto int
@@ -22,36 +24,28 @@ func ConCredencial(ctx context.Context, c Credencial) context.Context {
 }
 
 type Cliente struct {
-	ProductosURL, StockURL string
-	HTTP                   *http.Client
+	productos productos.Client
+	stock     stock.Client
 }
 
 func Nuevo(p, s string) Cliente {
-	return Cliente{p, s, &http.Client{Timeout: 5 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}
-}
-func (c Cliente) llamar(ctx context.Context, metodo, url, clave string, body []byte) (*http.Response, error) {
-	r, e := http.NewRequestWithContext(ctx, metodo, url, bytes.NewReader(body))
-	if e != nil {
-		return nil, service.ErrExterno
+	httpClient := &http.Client{Timeout: 5 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+	return Cliente{
+		productos: productos.Client{Server: strings.TrimRight(p, "/") + "/", Client: httpClient},
+		stock:     stock.Client{Server: strings.TrimRight(s, "/") + "/", Client: httpClient},
 	}
+}
+func autenticar(ctx context.Context, r *http.Request) error {
 	a, _ := ctx.Value(claveCredencial).(Credencial)
 	r.Header.Set("Authorization", "Bearer "+a.JWT)
 	r.Header.Set("X-Request-Id", a.RequestID)
-	r.Header.Set("Content-Type", "application/json")
-	if clave != "" {
-		r.Header.Set("Idempotency-Key", clave)
-	}
-	resp, e := c.HTTP.Do(r)
-	if e != nil {
-		return nil, service.ErrExterno
-	}
-	return resp, nil
+	return nil
 }
 func (c Cliente) Obtener(ctx context.Context, id string) (service.Producto, error) {
 	var p service.Producto
-	r, e := c.llamar(ctx, "GET", c.ProductosURL+"/api/productos/"+id, "", nil)
+	r, e := c.productos.ObtenerProducto(ctx, id, autenticar)
 	if e != nil {
-		return p, e
+		return p, service.ErrExterno
 	}
 	defer r.Body.Close()
 	if r.StatusCode == 404 {
@@ -66,13 +60,14 @@ func (c Cliente) Obtener(ctx context.Context, id string) (service.Producto, erro
 	return p, nil
 }
 func (c Cliente) Descontar(ctx context.Context, clave string, items []service.Item) error {
-	b, e := json.Marshal(map[string]any{"productos": items})
-	if e != nil {
-		return e
+	body := stock.DescontarJSONRequestBody{Productos: make([]stock.Item, 0, len(items))}
+	for _, item := range items {
+		body.Productos = append(body.Productos, stock.Item{ProductoId: item.ProductoID, Cantidad: item.Cantidad})
 	}
-	r, e := c.llamar(ctx, "POST", c.StockURL+"/api/stock/salidas", clave, b)
+	a, _ := ctx.Value(claveCredencial).(Credencial)
+	r, e := c.stock.Descontar(ctx, &stock.DescontarParams{IdempotencyKey: clave, XRequestId: a.RequestID}, body, autenticar)
 	if e != nil {
-		return e
+		return service.ErrExterno
 	}
 	defer r.Body.Close()
 	if r.StatusCode == 409 {

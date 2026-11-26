@@ -1,0 +1,40 @@
+openapi: 3.0.3
+info:
+  title: Stock del simulador de desarrollo
+  version: 0.1.0
+  description: Interfaz provisional implementada por dev/mocks.
+paths:
+  /api/stock/salidas:
+    post:
+      operationId: descontar
+      parameters:
+        - { in: header, name: Idempotency-Key, required: true, schema: { type: string } }
+        - { in: header, name: X-Request-Id, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productos]
+              properties:
+                productos:
+                  type: array
+                  items: { $ref: "#/components/schemas/Item" }
+      responses:
+        "204": { description: Salida aplicada }
+        "400": { description: Faltan datos }
+        "401": { description: Credencial inválida }
+        "409": { description: Stock insuficiente }
+        "422": { description: Datos inválidos }
+security: [{ bearer: [] }]
+components:
+  schemas:
+    Item:
+      type: object
+      required: [producto_id, cantidad]
+      properties:
+        producto_id: { type: string }
+        cantidad: { type: integer, format: int32 }
+  securitySchemes:
+    bearer: { type: http, scheme: bearer }

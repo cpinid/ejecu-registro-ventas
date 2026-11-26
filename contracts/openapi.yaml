@@ -240,6 +240,7 @@ paths:
           description: Internal Server Error
       security:
         - sesion: []
+      x-permiso: ventas:consultar
     post:
       operationId: crear-venta
       parameters:
@@ -307,6 +308,7 @@ paths:
           description: Service Unavailable
       security:
         - sesion: []
+      x-permiso: ventas:operar
   /api/ventas/{id}:
     get:
       operationId: consultar-venta
@@ -356,3 +358,4 @@ paths:
           description: Internal Server Error
       security:
         - sesion: []
+      x-permiso: ventas:consultar

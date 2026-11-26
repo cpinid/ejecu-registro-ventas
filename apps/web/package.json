@@ -7,30 +7,31 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --coverage",
     "codegen": "openapi-typescript ../../contracts/openapi.yaml -o src/tipos.ts"
   },
   "dependencies": {
+    "@base-ui/react": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "openapi-fetch": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "@tanstack/react-query": "catalog:",
     "react-hook-form": "catalog:",
-    "openapi-fetch": "catalog:",
-    "@base-ui/react": "catalog:",
     "react-router": "catalog:"
   },
   "devDependencies": {
-    "typescript": "catalog:",
-    "vite": "catalog:",
-    "@vitejs/plugin-react": "catalog:",
-    "tailwindcss": "catalog:",
-    "@tailwindcss/vite": "catalog:",
-    "openapi-typescript": "catalog:",
-    "msw": "catalog:",
-    "vitest": "catalog:",
     "@playwright/test": "catalog:",
     "@stoplight/prism-cli": "catalog:",
+    "@tailwindcss/vite": "catalog:",
     "@types/react": "catalog:",
-    "@types/react-dom": "catalog:"
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "@vitest/coverage-v8": "4.1.10",
+    "msw": "catalog:",
+    "openapi-typescript": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

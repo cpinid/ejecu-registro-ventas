@@ -1,0 +1,5 @@
+apps/web/dev/mockServiceWorker.js
+apps/web/src/tipos.ts
+contracts/openapi.yaml
+pnpm-lock.yaml
+**/coverage/

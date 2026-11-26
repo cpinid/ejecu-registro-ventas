@@ -11,6 +11,7 @@
     "typecheck": "pnpm --filter registro-ventas-web typecheck",
     "test": "pnpm --filter registro-ventas-web test",
     "test:api": "cd apps/api && go test ./...",
+    "test:e2e:api": "cd apps/api && go test -count=1 -tags=e2e -coverpkg=./... -coverprofile=../../coverage.out ./...",
     "verify": "pnpm exec oxlint --deny-warnings && pnpm typecheck && pnpm test && pnpm test:api && pnpm --filter registro-ventas-web build"
   },
   "devDependencies": {
