@@ -1,0 +1,1 @@
+Pendiente de implementar E2E que arranquen binario real y PostgreSQL real con Testcontainers v0.43.0, reportes golden deterministas, JWT de prueba y proveedores con contrato oficial. No se incluyen golden de resultados no ejecutados.

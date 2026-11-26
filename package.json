@@ -1,0 +1,22 @@
+{
+  "name": "registro-ventas",
+  "private": true,
+  "packageManager": "pnpm@10.13.1",
+  "engines": {
+    "node": "22.22.0"
+  },
+  "scripts": {
+    "codegen": "node scripts/codegen.mjs && pnpm --filter registro-ventas-web codegen",
+    "generate": "cd apps/api && go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.29.0 generate",
+    "typecheck": "pnpm --filter registro-ventas-web typecheck",
+    "test": "pnpm --filter registro-ventas-web test",
+    "test:api": "cd apps/api && go test ./...",
+    "verify": "pnpm exec oxlint --deny-warnings && pnpm typecheck && pnpm test && pnpm test:api && pnpm --filter registro-ventas-web build"
+  },
+  "devDependencies": {
+    "oxlint": "catalog:",
+    "prettier": "catalog:",
+    "prettier-plugin-tailwindcss": "catalog:",
+    "lefthook": "catalog:"
+  }
+}
