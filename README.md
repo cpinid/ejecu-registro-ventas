@@ -22,11 +22,11 @@ Las funcionalidades principales del microservicio son:
 
 El servicio requiere comunicarse con los siguientes grupos:
 
-| Grupo | Microservicio | Responsabilidad |
-|---|---|---|
-| Grupo 3 | Productos | Proporcionar información de los productos. |
-| Grupo 8 | Stock | Gestionar y actualizar las existencias. |
-| Grupo 9 | Registro de Venta | Registrar y consultar las ventas. |
+| Grupo   | Microservicio     | Responsabilidad                            |
+| ------- | ----------------- | ------------------------------------------ |
+| Grupo 3 | Productos         | Proporcionar información de los productos. |
+| Grupo 8 | Stock             | Gestionar y actualizar las existencias.    |
+| Grupo 9 | Registro de Venta | Registrar y consultar las ventas.          |
 
 Las integraciones se realizarán mediante contratos OpenAPI y solicitudes HTTP REST.
 
@@ -35,6 +35,7 @@ Durante el desarrollo se utilizarán respuestas simuladas (mocks) para permitir 
 ## 4. Tecnologías utilizadas
 
 ### Backend
+
 - Go 1.26.5
 - Huma v2.34.1
 - PostgreSQL 17.11
@@ -43,6 +44,7 @@ Durante el desarrollo se utilizarán respuestas simuladas (mocks) para permitir 
 - Goose v3.24.1
 
 ### Frontend
+
 - React 19.2.8
 - TypeScript 6.0.3
 - Vite 8.1.5
@@ -53,6 +55,7 @@ Durante el desarrollo se utilizarán respuestas simuladas (mocks) para permitir 
 - MSW 2.15.0
 
 ### Infraestructura y herramientas
+
 - Docker y Docker Compose
 - Git y GitHub
 - pnpm 10.13.1
@@ -200,17 +203,17 @@ Los contratos se utilizarán como referencia para implementar los handlers y fac
 
 El proyecto se encuentra en etapa de configuración y desarrollo inicial.
 
-| Componente | Estado |
-|---|---|
-| Estructura del repositorio | En preparación |
-| Configuración del frontend | Compilación inicial exitosa |
-| Interfaz de registro de venta | En desarrollo |
-| Contrato OpenAPI | Pendiente de completar |
-| Backend Go | En desarrollo |
-| Base de datos | Pendiente de implementar |
-| Integración con Grupo 3 | Pendiente |
-| Integración con Grupo 8 | Pendiente |
-| Pruebas automatizadas | Pendientes |
+| Componente                    | Estado                      |
+| ----------------------------- | --------------------------- |
+| Estructura del repositorio    | En preparación              |
+| Configuración del frontend    | Compilación inicial exitosa |
+| Interfaz de registro de venta | En desarrollo               |
+| Contrato OpenAPI              | Pendiente de completar      |
+| Backend Go                    | En desarrollo               |
+| Base de datos                 | Pendiente de implementar    |
+| Integración con Grupo 3       | Pendiente                   |
+| Integración con Grupo 8       | Pendiente                   |
+| Pruebas automatizadas         | Pendientes                  |
 
 ## 11. Consideraciones
 

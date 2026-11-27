@@ -5,7 +5,8 @@ services:
       context: .
       dockerfile: dev/mocks/Dockerfile
     ports:
-      - '127.0.0.1:5142:8080'
+      - "127.0.0.1:5142:8080"
+
   backend:
     environment:
       API_ENV: dev

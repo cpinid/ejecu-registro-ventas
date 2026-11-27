@@ -1,1 +1,1 @@
-export { RegistroVenta } from './registro-venta'
+export { RegistroVenta } from "./registro-venta"
