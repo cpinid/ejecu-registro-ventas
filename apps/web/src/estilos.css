@@ -1,0 +1,19 @@
+@import "tailwindcss";
+body {
+  font-family: system-ui;
+  background: #f4f6f8;
+  color: #172033;
+}
+input,
+select,
+button {
+  border: 1px solid #aab4c2;
+  border-radius: 6px;
+  padding: 8px;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.5;
+}
